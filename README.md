@@ -1,6 +1,53 @@
-# Project  API #
+# Modak Project #
 
-API for managing Api Request
+Implementation of Rate-Limited Notification Service
+
+This Api has several endpoints:
+
+POST http://localhost:8030/api/v1/messages
+
+payload:
+
+```json
+{
+  "id": "7875be4b-917d-4aff-8cc4-5606c36bf418",
+  "type": "Status",
+  "description": "Info message",
+  "recipient_id": "7875be4b-917d-4aff-8cc4-5606c36bf418",
+  "clean_text": "Text body of the email",
+  "rate_limit": {
+    "rate": 2,
+    "unit": "minute"
+  }
+}
+```
+As you can see in this example, the message encapsulates all the information necessary for the system to know what to do with it. 
+In this case, a message of type "Status" has a rate limit of 2 request per minute and could be for example:
+
+```json
+
+{
+    {
+      "rate_limit": {
+        "rate": 4,
+        "unit": "second"    // 4 request per second
+      }
+    },
+    {
+      "rate_limit": {
+        "rate": 2,
+        "unit": "hour"      // 2 request per hour
+      }
+    },
+    {
+      "rate_limit": {
+        "rate": 2,          // 2 request per day
+        "unit": "day"
+      }
+    }
+}
+```
+
 
 ## Install
 
