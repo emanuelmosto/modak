@@ -1,0 +1,46 @@
+image: php:7.2-cli-buster
+
+clone:
+    depth: full # SonarCloud scanner needs the full history to assign issues properly
+
+definitions:
+    services:
+        docker:
+            memory: 2048
+    caches:
+        sonar: ~/.sonar/cache  # Caching SonarCloud artifacts will speed up your build
+    steps:
+        - step: &run-tests
+            caches:
+                - sonar
+                - composer
+            name: Check Syntax and Run Unit Tests
+            script:
+                - apt-get update -yqq && apt-get install zlib1g-dev git -y
+                - pecl install -o -f redis xdebug
+                - echo 'zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so' > /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+                - docker-php-ext-install bcmath sockets zip
+                - docker-php-ext-enable redis
+                - export XDEBUG_MODE=coverage
+                - curl -fsSL https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
+                - composer install --quiet
+                - composer cs
+                - composer coverage
+                - pipe: sonarsource/sonarcloud-scan:1.0.1
+        - step: &run-sonarcloud
+              name: Check the Quality Gate on SonarCloud
+              script:
+                  - pipe: sonarsource/sonarcloud-quality-gate:0.1.2
+
+pipelines:
+    branches:
+        develop:
+            - step: *run-tests
+            - step: *run-sonarcloud
+    pull-requests:
+        "feature/*":
+            - step: *run-tests
+            - step: *run-sonarcloud
+        "hotfix/*":
+            - step: *run-tests
+            - step: *run-sonarcloud

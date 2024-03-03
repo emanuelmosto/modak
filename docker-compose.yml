@@ -1,0 +1,29 @@
+version: '3.2'
+
+services:
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: project-api-server-container
+    ports:
+    - "8030:80"
+    volumes:
+    - ./:/var/www/html
+    - ./logs:/var/www/html/logs
+    environment:
+      REDIS_HOST: cache
+    networks:
+    - testingnetwork
+  cache:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - testingnetwork
+
+networks:
+  testingnetwork:
+    external:
+      name: testingnetwork

@@ -1,0 +1,13 @@
+.dockerignore
+Dockerfile
+env
+docker-compose*
+.gitignore
+.git
+ecs-definition-*
+*.txt
+*.log
+*.gz
+*.zip
+*.sublime-workspace
+.docker-config
